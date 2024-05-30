@@ -1,0 +1,294 @@
+2024/04/29-10:27:37.253361 fdc RocksDB version: 8.9.1
+2024/04/29-10:27:37.253477 fdc Git sha 49ce8a1064dd1ad89117899839bf136365e49e79
+2024/04/29-10:27:37.253519 fdc Compile date 2023-12-15 20:09:11
+2024/04/29-10:27:37.253548 fdc DB SUMMARY
+2024/04/29-10:27:37.253595 fdc Host name (Env):  DESKTOP-K1DHPRH
+2024/04/29-10:27:37.253610 fdc DB Session ID:  TGXR1ZMY755UYIRG73Q0
+2024/04/29-10:27:37.254812 fdc CURRENT file:  CURRENT
+2024/04/29-10:27:37.254851 fdc IDENTITY file:  IDENTITY
+2024/04/29-10:27:37.254953 fdc MANIFEST file:  MANIFEST-000046 size: 265 Bytes
+2024/04/29-10:27:37.254985 fdc SST files in experiment/accounts dir, Total Num: 1, files: 000028.sst 
+2024/04/29-10:27:37.255006 fdc Write Ahead Log file in experiment/accounts: 000045.log size: 0 ; 
+2024/04/29-10:27:37.255426 fdc                         Options.error_if_exists: 0
+2024/04/29-10:27:37.255436 fdc                       Options.create_if_missing: 1
+2024/04/29-10:27:37.255440 fdc                         Options.paranoid_checks: 1
+2024/04/29-10:27:37.255443 fdc             Options.flush_verify_memtable_count: 1
+2024/04/29-10:27:37.255446 fdc          Options.compaction_verify_record_count: 1
+2024/04/29-10:27:37.255449 fdc                               Options.track_and_verify_wals_in_manifest: 0
+2024/04/29-10:27:37.255452 fdc        Options.verify_sst_unique_id_in_manifest: 1
+2024/04/29-10:27:37.255455 fdc                                     Options.env: 000001A264ABFB30
+2024/04/29-10:27:37.255459 fdc                                      Options.fs: WinFS
+2024/04/29-10:27:37.255463 fdc                                Options.info_log: 000001A264D54CB0
+2024/04/29-10:27:37.255467 fdc                Options.max_file_opening_threads: 16
+2024/04/29-10:27:37.255470 fdc                              Options.statistics: 0000000000000000
+2024/04/29-10:27:37.255474 fdc                               Options.use_fsync: 0
+2024/04/29-10:27:37.255478 fdc                       Options.max_log_file_size: 0
+2024/04/29-10:27:37.255482 fdc                  Options.max_manifest_file_size: 1073741824
+2024/04/29-10:27:37.255486 fdc                   Options.log_file_time_to_roll: 0
+2024/04/29-10:27:37.255490 fdc                       Options.keep_log_file_num: 1000
+2024/04/29-10:27:37.255494 fdc                    Options.recycle_log_file_num: 0
+2024/04/29-10:27:37.255498 fdc                         Options.allow_fallocate: 1
+2024/04/29-10:27:37.255502 fdc                        Options.allow_mmap_reads: 0
+2024/04/29-10:27:37.255506 fdc                       Options.allow_mmap_writes: 0
+2024/04/29-10:27:37.255509 fdc                        Options.use_direct_reads: 0
+2024/04/29-10:27:37.255512 fdc                        Options.use_direct_io_for_flush_and_compaction: 0
+2024/04/29-10:27:37.255516 fdc          Options.create_missing_column_families: 0
+2024/04/29-10:27:37.255519 fdc                              Options.db_log_dir: 
+2024/04/29-10:27:37.255523 fdc                                 Options.wal_dir: 
+2024/04/29-10:27:37.255526 fdc                Options.table_cache_numshardbits: 6
+2024/04/29-10:27:37.255530 fdc                         Options.WAL_ttl_seconds: 0
+2024/04/29-10:27:37.255534 fdc                       Options.WAL_size_limit_MB: 0
+2024/04/29-10:27:37.255537 fdc                        Options.max_write_batch_group_size_bytes: 1048576
+2024/04/29-10:27:37.255541 fdc             Options.manifest_preallocation_size: 4194304
+2024/04/29-10:27:37.255545 fdc                     Options.is_fd_close_on_exec: 1
+2024/04/29-10:27:37.255549 fdc                   Options.advise_random_on_open: 1
+2024/04/29-10:27:37.255553 fdc                    Options.db_write_buffer_size: 0
+2024/04/29-10:27:37.255556 fdc                    Options.write_buffer_manager: 000001A264ABEF00
+2024/04/29-10:27:37.255560 fdc         Options.access_hint_on_compaction_start: 1
+2024/04/29-10:27:37.255563 fdc           Options.random_access_max_buffer_size: 1048576
+2024/04/29-10:27:37.255567 fdc                      Options.use_adaptive_mutex: 0
+2024/04/29-10:27:37.255570 fdc                            Options.rate_limiter: 0000000000000000
+2024/04/29-10:27:37.255608 fdc     Options.sst_file_manager.rate_bytes_per_sec: 0
+2024/04/29-10:27:37.255615 fdc                       Options.wal_recovery_mode: 2
+2024/04/29-10:27:37.255619 fdc                  Options.enable_thread_tracking: 0
+2024/04/29-10:27:37.255623 fdc                  Options.enable_pipelined_write: 0
+2024/04/29-10:27:37.255627 fdc                  Options.unordered_write: 0
+2024/04/29-10:27:37.255630 fdc         Options.allow_concurrent_memtable_write: 1
+2024/04/29-10:27:37.255634 fdc      Options.enable_write_thread_adaptive_yield: 1
+2024/04/29-10:27:37.255638 fdc             Options.write_thread_max_yield_usec: 100
+2024/04/29-10:27:37.255642 fdc            Options.write_thread_slow_yield_usec: 3
+2024/04/29-10:27:37.255646 fdc                               Options.row_cache: None
+2024/04/29-10:27:37.255649 fdc                              Options.wal_filter: None
+2024/04/29-10:27:37.255653 fdc             Options.avoid_flush_during_recovery: 0
+2024/04/29-10:27:37.255656 fdc             Options.allow_ingest_behind: 0
+2024/04/29-10:27:37.255660 fdc             Options.two_write_queues: 0
+2024/04/29-10:27:37.255663 fdc             Options.manual_wal_flush: 0
+2024/04/29-10:27:37.255667 fdc             Options.wal_compression: 0
+2024/04/29-10:27:37.255670 fdc             Options.atomic_flush: 0
+2024/04/29-10:27:37.255673 fdc             Options.avoid_unnecessary_blocking_io: 0
+2024/04/29-10:27:37.255677 fdc                 Options.persist_stats_to_disk: 0
+2024/04/29-10:27:37.255681 fdc                 Options.write_dbid_to_manifest: 0
+2024/04/29-10:27:37.255684 fdc                 Options.log_readahead_size: 0
+2024/04/29-10:27:37.255687 fdc                 Options.file_checksum_gen_factory: Unknown
+2024/04/29-10:27:37.255691 fdc                 Options.best_efforts_recovery: 0
+2024/04/29-10:27:37.255694 fdc                Options.max_bgerror_resume_count: 2147483647
+2024/04/29-10:27:37.255698 fdc            Options.bgerror_resume_retry_interval: 1000000
+2024/04/29-10:27:37.255701 fdc             Options.allow_data_in_errors: 0
+2024/04/29-10:27:37.255705 fdc             Options.db_host_id: __hostname__
+2024/04/29-10:27:37.255708 fdc             Options.enforce_single_del_contracts: true
+2024/04/29-10:27:37.255712 fdc             Options.max_background_jobs: 2
+2024/04/29-10:27:37.255715 fdc             Options.max_background_compactions: -1
+2024/04/29-10:27:37.255719 fdc             Options.max_subcompactions: 1
+2024/04/29-10:27:37.255722 fdc             Options.avoid_flush_during_shutdown: 0
+2024/04/29-10:27:37.255725 fdc           Options.writable_file_max_buffer_size: 1048576
+2024/04/29-10:27:37.255729 fdc             Options.delayed_write_rate : 16777216
+2024/04/29-10:27:37.255733 fdc             Options.max_total_wal_size: 0
+2024/04/29-10:27:37.255737 fdc             Options.delete_obsolete_files_period_micros: 21600000000
+2024/04/29-10:27:37.255741 fdc                   Options.stats_dump_period_sec: 600
+2024/04/29-10:27:37.255744 fdc                 Options.stats_persist_period_sec: 600
+2024/04/29-10:27:37.255747 fdc                 Options.stats_history_buffer_size: 1048576
+2024/04/29-10:27:37.255751 fdc                          Options.max_open_files: -1
+2024/04/29-10:27:37.255754 fdc                          Options.bytes_per_sync: 0
+2024/04/29-10:27:37.255758 fdc                      Options.wal_bytes_per_sync: 0
+2024/04/29-10:27:37.255762 fdc                   Options.strict_bytes_per_sync: 0
+2024/04/29-10:27:37.255766 fdc       Options.compaction_readahead_size: 2097152
+2024/04/29-10:27:37.255785 fdc                  Options.max_background_flushes: -1
+2024/04/29-10:27:37.255789 fdc Options.daily_offpeak_time_utc: 
+2024/04/29-10:27:37.255793 fdc Compression algorithms supported:
+2024/04/29-10:27:37.255806 fdc 	kZSTD supported: 1
+2024/04/29-10:27:37.255810 fdc 	kSnappyCompression supported: 1
+2024/04/29-10:27:37.255814 fdc 	kBZip2Compression supported: 0
+2024/04/29-10:27:37.255817 fdc 	kZlibCompression supported: 1
+2024/04/29-10:27:37.255821 fdc 	kLZ4Compression supported: 1
+2024/04/29-10:27:37.255850 fdc 	kXpressCompression supported: 0
+2024/04/29-10:27:37.255855 fdc 	kLZ4HCCompression supported: 1
+2024/04/29-10:27:37.255859 fdc 	kZSTDNotFinalCompression supported: 1
+2024/04/29-10:27:37.255870 fdc Fast CRC32 supported: Not supported on x86
+2024/04/29-10:27:37.255874 fdc DMutex implementation: std::mutex
+2024/04/29-10:27:37.256996 fdc [db\version_set.cc:5937] Recovering from manifest file: experiment/accounts/MANIFEST-000046
+2024/04/29-10:27:37.257411 fdc [db\column_family.cc:618] --------------- Options for column family [default]:
+2024/04/29-10:27:37.257428 fdc               Options.comparator: leveldb.BytewiseComparator
+2024/04/29-10:27:37.257434 fdc           Options.merge_operator: None
+2024/04/29-10:27:37.257439 fdc        Options.compaction_filter: None
+2024/04/29-10:27:37.257444 fdc        Options.compaction_filter_factory: None
+2024/04/29-10:27:37.257448 fdc  Options.sst_partitioner_factory: None
+2024/04/29-10:27:37.257453 fdc         Options.memtable_factory: SkipListFactory
+2024/04/29-10:27:37.257458 fdc            Options.table_factory: BlockBasedTable
+2024/04/29-10:27:37.257507 fdc            table_factory options:   flush_block_policy_factory: FlushBlockBySizePolicyFactory (000001A264D71710)
+  cache_index_and_filter_blocks: 0
+  cache_index_and_filter_blocks_with_high_priority: 1
+  pin_l0_filter_and_index_blocks_in_cache: 0
+  pin_top_level_index_and_filter: 1
+  index_type: 0
+  data_block_index_type: 0
+  index_shortening: 1
+  data_block_hash_table_util_ratio: 0.750000
+  checksum: 4
+  no_block_cache: 0
+  block_cache: 000001A264ABEE20
+  block_cache_name: LRUCache
+  block_cache_options:
+    capacity : 33554432
+    num_shard_bits : 6
+    strict_capacity_limit : 0
+    memory_allocator : None
+    high_pri_pool_ratio: 0.500
+    low_pri_pool_ratio: 0.000
+  persistent_cache: 0000000000000000
+  block_size: 4096
+  block_size_deviation: 10
+  block_restart_interval: 16
+  index_block_restart_interval: 1
+  metadata_block_size: 4096
+  partition_filters: 0
+  use_delta_encoding: 1
+  filter_policy: nullptr
+  whole_key_filtering: 1
+  verify_compression: 0
+  read_amp_bytes_per_bit: 0
+  format_version: 5
+  enable_index_compression: 1
+  block_align: 0
+  max_auto_readahead_size: 262144
+  prepopulate_block_cache: 0
+  initial_auto_readahead_size: 8192
+  num_file_reads_for_auto_readahead: 2
+2024/04/29-10:27:37.257518 fdc        Options.write_buffer_size: 67108864
+2024/04/29-10:27:37.257521 fdc  Options.max_write_buffer_number: 2
+2024/04/29-10:27:37.257529 fdc          Options.compression: Snappy
+2024/04/29-10:27:37.257532 fdc                  Options.bottommost_compression: Disabled
+2024/04/29-10:27:37.257534 fdc       Options.prefix_extractor: nullptr
+2024/04/29-10:27:37.257537 fdc   Options.memtable_insert_with_hint_prefix_extractor: nullptr
+2024/04/29-10:27:37.257539 fdc             Options.num_levels: 7
+2024/04/29-10:27:37.257541 fdc        Options.min_write_buffer_number_to_merge: 1
+2024/04/29-10:27:37.257544 fdc     Options.max_write_buffer_number_to_maintain: 0
+2024/04/29-10:27:37.257546 fdc     Options.max_write_buffer_size_to_maintain: 0
+2024/04/29-10:27:37.257549 fdc            Options.bottommost_compression_opts.window_bits: -14
+2024/04/29-10:27:37.257551 fdc                  Options.bottommost_compression_opts.level: 32767
+2024/04/29-10:27:37.257557 fdc               Options.bottommost_compression_opts.strategy: 0
+2024/04/29-10:27:37.257559 fdc         Options.bottommost_compression_opts.max_dict_bytes: 0
+2024/04/29-10:27:37.257561 fdc         Options.bottommost_compression_opts.zstd_max_train_bytes: 0
+2024/04/29-10:27:37.257564 fdc         Options.bottommost_compression_opts.parallel_threads: 1
+2024/04/29-10:27:37.257566 fdc                  Options.bottommost_compression_opts.enabled: false
+2024/04/29-10:27:37.257569 fdc         Options.bottommost_compression_opts.max_dict_buffer_bytes: 0
+2024/04/29-10:27:37.257571 fdc         Options.bottommost_compression_opts.use_zstd_dict_trainer: true
+2024/04/29-10:27:37.257574 fdc            Options.compression_opts.window_bits: -14
+2024/04/29-10:27:37.257576 fdc                  Options.compression_opts.level: 32767
+2024/04/29-10:27:37.257581 fdc               Options.compression_opts.strategy: 0
+2024/04/29-10:27:37.257585 fdc         Options.compression_opts.max_dict_bytes: 0
+2024/04/29-10:27:37.257587 fdc         Options.compression_opts.zstd_max_train_bytes: 0
+2024/04/29-10:27:37.257590 fdc         Options.compression_opts.use_zstd_dict_trainer: true
+2024/04/29-10:27:37.257592 fdc         Options.compression_opts.parallel_threads: 1
+2024/04/29-10:27:37.257595 fdc                  Options.compression_opts.enabled: false
+2024/04/29-10:27:37.257597 fdc         Options.compression_opts.max_dict_buffer_bytes: 0
+2024/04/29-10:27:37.257600 fdc      Options.level0_file_num_compaction_trigger: 4
+2024/04/29-10:27:37.257602 fdc          Options.level0_slowdown_writes_trigger: 20
+2024/04/29-10:27:37.257604 fdc              Options.level0_stop_writes_trigger: 36
+2024/04/29-10:27:37.257607 fdc                   Options.target_file_size_base: 67108864
+2024/04/29-10:27:37.257609 fdc             Options.target_file_size_multiplier: 1
+2024/04/29-10:27:37.257611 fdc                Options.max_bytes_for_level_base: 268435456
+2024/04/29-10:27:37.257614 fdc Options.level_compaction_dynamic_level_bytes: 1
+2024/04/29-10:27:37.257616 fdc          Options.max_bytes_for_level_multiplier: 10.000000
+2024/04/29-10:27:37.257619 fdc Options.max_bytes_for_level_multiplier_addtl[0]: 1
+2024/04/29-10:27:37.257622 fdc Options.max_bytes_for_level_multiplier_addtl[1]: 1
+2024/04/29-10:27:37.257624 fdc Options.max_bytes_for_level_multiplier_addtl[2]: 1
+2024/04/29-10:27:37.257627 fdc Options.max_bytes_for_level_multiplier_addtl[3]: 1
+2024/04/29-10:27:37.257629 fdc Options.max_bytes_for_level_multiplier_addtl[4]: 1
+2024/04/29-10:27:37.257631 fdc Options.max_bytes_for_level_multiplier_addtl[5]: 1
+2024/04/29-10:27:37.257634 fdc Options.max_bytes_for_level_multiplier_addtl[6]: 1
+2024/04/29-10:27:37.257636 fdc       Options.max_sequential_skip_in_iterations: 8
+2024/04/29-10:27:37.257639 fdc                    Options.max_compaction_bytes: 1677721600
+2024/04/29-10:27:37.257641 fdc   Options.ignore_max_compaction_bytes_for_input: true
+2024/04/29-10:27:37.257644 fdc                        Options.arena_block_size: 1048576
+2024/04/29-10:27:37.257646 fdc   Options.soft_pending_compaction_bytes_limit: 68719476736
+2024/04/29-10:27:37.257648 fdc   Options.hard_pending_compaction_bytes_limit: 274877906944
+2024/04/29-10:27:37.257652 fdc                Options.disable_auto_compactions: 0
+2024/04/29-10:27:37.257656 fdc                        Options.compaction_style: kCompactionStyleLevel
+2024/04/29-10:27:37.257661 fdc                          Options.compaction_pri: kMinOverlappingRatio
+2024/04/29-10:27:37.257665 fdc Options.compaction_options_universal.size_ratio: 1
+2024/04/29-10:27:37.257669 fdc Options.compaction_options_universal.min_merge_width: 2
+2024/04/29-10:27:37.257672 fdc Options.compaction_options_universal.max_merge_width: 4294967295
+2024/04/29-10:27:37.257674 fdc Options.compaction_options_universal.max_size_amplification_percent: 200
+2024/04/29-10:27:37.257677 fdc Options.compaction_options_universal.compression_size_percent: -1
+2024/04/29-10:27:37.257679 fdc Options.compaction_options_universal.stop_style: kCompactionStopStyleTotalSize
+2024/04/29-10:27:37.257682 fdc Options.compaction_options_fifo.max_table_files_size: 1073741824
+2024/04/29-10:27:37.257684 fdc Options.compaction_options_fifo.allow_compaction: 0
+2024/04/29-10:27:37.257689 fdc                   Options.table_properties_collectors: 
+2024/04/29-10:27:37.257692 fdc                   Options.inplace_update_support: 0
+2024/04/29-10:27:37.257696 fdc                 Options.inplace_update_num_locks: 10000
+2024/04/29-10:27:37.257700 fdc               Options.memtable_prefix_bloom_size_ratio: 0.000000
+2024/04/29-10:27:37.257704 fdc               Options.memtable_whole_key_filtering: 0
+2024/04/29-10:27:37.257706 fdc   Options.memtable_huge_page_size: 0
+2024/04/29-10:27:37.257709 fdc                           Options.bloom_locality: 0
+2024/04/29-10:27:37.257753 fdc                    Options.max_successive_merges: 0
+2024/04/29-10:27:37.257763 fdc                Options.optimize_filters_for_hits: 0
+2024/04/29-10:27:37.257768 fdc                Options.paranoid_file_checks: 0
+2024/04/29-10:27:37.257776 fdc                Options.force_consistency_checks: 1
+2024/04/29-10:27:37.257781 fdc                Options.report_bg_io_stats: 0
+2024/04/29-10:27:37.257785 fdc                               Options.ttl: 2592000
+2024/04/29-10:27:37.257789 fdc          Options.periodic_compaction_seconds: 0
+2024/04/29-10:27:37.257792 fdc                        Options.default_temperature: kUnknown
+2024/04/29-10:27:37.257795 fdc  Options.preclude_last_level_data_seconds: 0
+2024/04/29-10:27:37.257799 fdc    Options.preserve_internal_time_seconds: 0
+2024/04/29-10:27:37.257803 fdc                       Options.enable_blob_files: false
+2024/04/29-10:27:37.257806 fdc                           Options.min_blob_size: 0
+2024/04/29-10:27:37.257809 fdc                          Options.blob_file_size: 268435456
+2024/04/29-10:27:37.257813 fdc                   Options.blob_compression_type: NoCompression
+2024/04/29-10:27:37.257817 fdc          Options.enable_blob_garbage_collection: false
+2024/04/29-10:27:37.257821 fdc      Options.blob_garbage_collection_age_cutoff: 0.250000
+2024/04/29-10:27:37.257824 fdc Options.blob_garbage_collection_force_threshold: 1.000000
+2024/04/29-10:27:37.257827 fdc          Options.blob_compaction_readahead_size: 0
+2024/04/29-10:27:37.257830 fdc                Options.blob_file_starting_level: 0
+2024/04/29-10:27:37.257834 fdc         Options.experimental_mempurge_threshold: 0.000000
+2024/04/29-10:27:37.257839 fdc            Options.memtable_max_range_deletions: 0
+2024/04/29-10:27:37.260333 fdc [db\version_set.cc:5988] Recovered from manifest file:experiment/accounts/MANIFEST-000046 succeeded,manifest_file_number is 46, next_file_number is 48, last_sequence is 1288760, log_number is 42,prev_log_number is 0,max_column_family is 0,min_log_number_to_keep is 42
+2024/04/29-10:27:37.260378 fdc [db\version_set.cc:5997] Column family [default] (ID 0), log number is 42
+2024/04/29-10:27:37.260831 fdc [db\db_impl\db_impl_open.cc:646] DB ID: 357b1f87-c299-11ee-b5cb-144f8abf315e
+2024/04/29-10:27:37.263922 fdc EVENT_LOG_v1 {"time_micros": 1714357657263897, "job": 1, "event": "recovery_started", "wal_files": [45]}
+2024/04/29-10:27:37.263945 fdc [db\db_impl\db_impl_open.cc:1145] Recovering log #45 mode 2
+2024/04/29-10:27:37.331657 fdc EVENT_LOG_v1 {"time_micros": 1714357657331647, "job": 1, "event": "recovery_finished"}
+2024/04/29-10:27:37.332130 fdc [db\version_set.cc:5434] Creating manifest 50
+2024/04/29-10:27:37.428037 fdc [file\delete_scheduler.cc:77] Deleted file experiment/accounts/000045.log immediately, rate_bytes_per_sec 0, total_trash_size 0 max_trash_db_ratio 0.250000
+2024/04/29-10:27:37.428299 fdc [db\db_impl\db_impl_open.cc:2157] SstFileManager instance 000001A2AA4453B0
+2024/04/29-10:27:37.428445 5b4c (Original Log Time 2024/04/29-10:27:37.428418) [db\db_impl\db_impl_compaction_flush.cc:3675] Compaction nothing to do
+2024/04/29-10:27:37.429601 fdc DB pointer 000001A2AA43BFC0
+2024/04/29-10:27:37.429990 4308 [db\db_impl\db_impl.cc:1140] ------- DUMPING STATS -------
+2024/04/29-10:27:37.430003 4308 [db\db_impl\db_impl.cc:1141] 
+** DB Stats **
+Uptime(secs): 0.2 total, 0.2 interval
+Cumulative writes: 0 writes, 0 keys, 0 commit groups, 0.0 writes per commit group, ingest: 0.00 GB, 0.00 MB/s
+Cumulative WAL: 0 writes, 0 syncs, 0.00 writes per sync, written: 0.00 GB, 0.00 MB/s
+Cumulative stall: 00:00:0.000 H:M:S, 0.0 percent
+Interval writes: 0 writes, 0 keys, 0 commit groups, 0.0 writes per commit group, ingest: 0.00 MB, 0.00 MB/s
+Interval WAL: 0 writes, 0 syncs, 0.00 writes per sync, written: 0.00 GB, 0.00 MB/s
+Interval stall: 00:00:0.000 H:M:S, 0.0 percent
+Write Stall (count): write-buffer-manager-limit-stops: 0
+
+** Compaction Stats [default] **
+Level    Files   Size     Score Read(GB)  Rn(GB) Rnp1(GB) Write(GB) Wnew(GB) Moved(GB) W-Amp Rd(MB/s) Wr(MB/s) Comp(sec) CompMergeCPU(sec) Comp(cnt) Avg(sec) KeyIn KeyDrop Rblob(GB) Wblob(GB)
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+  L0      1/0   75.94 MB   0.2      0.0     0.0      0.0       0.0      0.0       0.0   0.0      0.0      0.0      0.00              0.00         0    0.000       0      0       0.0       0.0
+ Sum      1/0   75.94 MB   0.0      0.0     0.0      0.0       0.0      0.0       0.0   0.0      0.0      0.0      0.00              0.00         0    0.000       0      0       0.0       0.0
+ Int      0/0    0.00 KB   0.0      0.0     0.0      0.0       0.0      0.0       0.0   0.0      0.0      0.0      0.00              0.00         0    0.000       0      0       0.0       0.0
+
+** Compaction Stats [default] **
+Priority    Files   Size     Score Read(GB)  Rn(GB) Rnp1(GB) Write(GB) Wnew(GB) Moved(GB) W-Amp Rd(MB/s) Wr(MB/s) Comp(sec) CompMergeCPU(sec) Comp(cnt) Avg(sec) KeyIn KeyDrop Rblob(GB) Wblob(GB)
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Blob file count: 0, total size: 0.0 GB, garbage size: 0.0 GB, space amp: 0.0
+
+Uptime(secs): 0.2 total, 0.2 interval
+Flush(GB): cumulative 0.000, interval 0.000
+AddFile(GB): cumulative 0.000, interval 0.000
+AddFile(Total Files): cumulative 0, interval 0
+AddFile(L0 Files): cumulative 0, interval 0
+AddFile(Keys): cumulative 0, interval 0
+Cumulative compaction: 0.00 GB write, 0.00 MB/s write, 0.00 GB read, 0.00 MB/s read, 0.0 seconds
+Interval compaction: 0.00 GB write, 0.00 MB/s write, 0.00 GB read, 0.00 MB/s read, 0.0 seconds
+Write Stall (count): cf-l0-file-count-limit-delays-with-ongoing-compaction: 0, cf-l0-file-count-limit-stops-with-ongoing-compaction: 0, l0-file-count-limit-delays: 0, l0-file-count-limit-stops: 0, memtable-limit-delays: 0, memtable-limit-stops: 0, pending-compaction-bytes-delays: 0, pending-compaction-bytes-stops: 0, total-delays: 0, total-stops: 0
+Block cache LRUCache@000001A264ABEE20#23876 capacity: 32.00 MB seed: 467238861 usage: 0.08 KB table_size: 1024 occupancy: 1 collections: 1 last_copies: 0 last_secs: 5.3e-05 secs_since: 0
+Block cache entry stats(count,size,portion): Misc(1,0.00 KB,0%)
+
+** File Read Latency Histogram By Level [default] **
+2024/04/29-10:27:54.511287 fdc [db\db_impl\db_impl.cc:486] Shutdown: canceling all background work
+2024/04/29-10:27:54.564541 fdc [db\db_impl\db_impl.cc:667] Shutdown complete

@@ -1,0 +1,226 @@
+package blockchain.dcmpt;
+
+import blockchain.global.Node;
+
+import java.math.BigInteger;
+
+public class OptTrie {
+    public Node root;
+
+    public int threshold;
+
+    private static final BigInteger one = new BigInteger("1");
+    public BigInteger compactCount, leafCount, slotCount;
+
+    public OptTrie() {
+        root = null;
+        threshold = 1;
+        compactCount = new BigInteger("0");
+        leafCount = new BigInteger("0");
+        slotCount = new BigInteger("0");
+    }
+
+    public OptTrie(int threshold) {
+        root = null;
+        this.threshold = threshold;
+        compactCount = new BigInteger("0");
+        leafCount = new BigInteger("0");
+        slotCount = new BigInteger("0");
+    }
+
+    public static int getIndex(char c) {
+        if (Character.isDigit(c)) return c - '0';
+        else if (Character.isLowerCase(c)) return c - 'a' + 10;
+        else return c - 'A' + 10;
+    }
+
+    /**
+     * if (node == null) return new LeafNode(restKey, value);
+     *         else {
+     *             if (node instanceof CompactNode compactNode) {
+     *                 // 如果遍历到压缩节点，首先检查restKey对应的segment是否为空
+     *                 // 如果为空则为其分配一个segment的一个stateSlot
+     *                 // 如果不为空则判断当前segment是否存满slot
+     *                 // 如果存满slot则判断当前trieSlot是否为空
+     *                 // 如果为空则为其分配一个leafNode
+     *                 // 如果不为空则继续遍历
+     *                 int idx = getIndex(restKey.charAt(0));
+     *                 if (compactNode.segments[idx] == null) compactNode.segments[idx] = new Segment(threshold);
+     *                 Segment segment = compactNode.segments[idx];
+     *                 if (segment.hasSpace()) segment.insert(restKey.substring(1), value);
+     *                 else if (segment.trieSlot == null) segment.trieSlot = insert(null, restKey.substring(1), value);
+     *                 else segment.trieSlot =  insert(segment.trieSlot, restKey.substring(1), value);
+     *                 return compactNode;
+     *             }
+     *             else if (node instanceof LeafNode leafNode) {
+     *                 // 如果遍历到叶子节点，首先检查restKey是否和node的key相同
+     *                 // 如果相同，则更新node的值
+     *                 // 如果不同，则需要生成一个新的compactNode
+     *                 // 主要保证引用正确
+     *                 if (restKey.equals(leafNode.key)) {
+     *                     leafNode.value = value;
+     *                     return leafNode;
+     *                 }
+     *                 else {
+     *                     CompactNode compactNode = new CompactNode();
+     *                     // 遍历restKey与leafNode的key长度相同的充分必要条件为插入DCMPT的key长度相同
+     *                     // 首先比较两个key的第一个字符是否相等
+     *                     // 如果不相等，则生成一个segment
+     *                     // 如果相等，则先将leafNode插入stateSlots中，再判断当前segment是否存满
+     *                     // 如果存满，则再为trieSlot生成一个leafNode
+     *                     // 如果没存满，则将restKey插入stateSlots中
+     *                     int idx1 = getIndex(restKey.charAt(0)), idx2 = getIndex(leafNode.key.charAt(0));
+     *                     Segment segment = new Segment(threshold);
+     *                     compactNode.segments[idx2] = segment;
+     *                     segment.insert(leafNode.key.substring(1), leafNode.value);
+     *                     if (idx1 != idx2) {
+     *                         Segment segment1 = new Segment(threshold);
+     *                         compactNode.segments[idx1] = segment1;
+     *                         segment1.insert(restKey.substring(1), value);
+     *                     }
+     *                     else {
+     *                         if (segment.hasSpace()) segment.insert(restKey.substring(1), value);
+     *                         else segment.trieSlot = insert(null, restKey.substring(1), value);
+     *                     }
+     *                     return compactNode;
+     *                 }
+     *             }
+     *             else {
+     *                 System.err.println("遍历过程中出现节点种类错误！");
+     *                 throw new RuntimeException("节点种类异常");
+     *             }
+     *         }
+     * */
+    private Node insert(Node node, String restKey, String value) {
+        if (node == null) {
+            leafCount = leafCount.add(one);
+            return new LeafNode(restKey, value);
+        }
+        else {
+            if (node instanceof CompactNode compactNode) {
+                // 如果遍历到压缩节点，首先检查restKey对应的segment是否为空
+                // 如果为空则为其分配一个segment的一个stateSlot
+                // 如果不为空则判断当前segment是否存满slot
+                // 如果存满slot则判断当前trieSlot是否为空
+                // 如果为空则为其分配一个leafNode
+                // 如果不为空则继续遍历
+                int idx = getIndex(restKey.charAt(0));
+                if (compactNode.segments[idx] == null) compactNode.segments[idx] = new Segment(threshold);
+                Segment segment = compactNode.segments[idx];
+                if (segment.hasSpace()) {
+                    segment.insert(restKey.substring(1), value);
+                    slotCount = slotCount.add(one);
+                }
+                else if (segment.trieSlot == null) segment.trieSlot = insert(null, restKey.substring(1), value);
+                else segment.trieSlot = insert(segment.trieSlot, restKey.substring(1), value);
+                return compactNode;
+            }
+            else if (node instanceof LeafNode leafNode) {
+                // 如果遍历到叶子节点，首先检查restKey是否和node的key相同
+                // 如果相同，则更新node的值
+                // 如果不同，则需要生成一个新的compactNode
+                // 主要保证引用正确
+                if (restKey.equals(leafNode.key)) {
+                    leafNode.value = value;
+                    return leafNode;
+                }
+                else {
+                    CompactNode compactNode = new CompactNode();
+                    // 遍历restKey与leafNode的key长度相同的充分必要条件为插入DCMPT的key长度相同
+                    // 首先比较两个key的第一个字符是否相等
+                    // 如果不相等，则生成一个segment
+                    // 如果相等，则先将leafNode插入stateSlots中，再判断当前segment是否存满
+                    // 如果存满，则再为trieSlot生成一个leafNode
+                    // 如果没存满，则将restKey插入stateSlots中
+                    int idx1 = getIndex(restKey.charAt(0)), idx2 = getIndex(leafNode.key.charAt(0));
+                    Segment segment = new Segment(threshold);
+                    compactNode.segments[idx2] = segment;
+                    segment.insert(leafNode.key.substring(1), leafNode.value);
+                    if (idx1 != idx2) {
+                        Segment segment1 = new Segment(threshold);
+                        compactNode.segments[idx1] = segment1;
+                        segment1.insert(restKey.substring(1), value);
+                        slotCount = slotCount.add(one);
+                    }
+                    else {
+                        if (segment.hasSpace()) {
+                            segment.insert(restKey.substring(1), value);
+                            slotCount = slotCount.add(one);
+                        }
+                        else segment.trieSlot = insert(null, restKey.substring(1), value);
+                    }
+                    slotCount = slotCount.add(one);
+                    leafCount = leafCount.subtract(one);
+                    compactCount = compactCount.add(one);
+                    return compactNode;
+                }
+            }
+            else {
+                System.err.println("遍历过程中出现节点种类错误！");
+                throw new RuntimeException("节点种类异常");
+            }
+        }
+    }
+
+    public void insert(String key, String value) {
+        root = insert(root, key, value);
+    }
+
+    private String get(Node node, String restKey) {
+        if (node == null) return "";
+        else {
+            if (node instanceof CompactNode compactNode) {
+                int idx = getIndex(restKey.charAt(0));
+                Segment segment = compactNode.segments[idx];
+                if (segment == null) return null;
+                else {
+                    String res = segment.find(restKey.substring(1));
+                    if (res != null) return res;
+                    else if (segment.trieSlot == null) return null;
+                    else return get(segment.trieSlot, restKey.substring(1));
+                }
+            }
+            else if (node instanceof LeafNode leafNode) {
+                if (restKey.equals(leafNode.key)) return leafNode.value;
+                else return null;
+            }
+            else {
+                System.err.println("遍历过程中出现节点种类错误！");
+                throw new RuntimeException("节点种类异常");
+            }
+        }
+    }
+
+    public String get(String key) {
+        return get(root, key);
+    }
+
+    private int getPathLength(Node node, String restKey) {
+        if (node == null) return 0;
+        else {
+            if (node instanceof CompactNode compactNode) {
+                int idx = getIndex(restKey.charAt(0));
+                Segment segment = compactNode.segments[idx];
+                if (segment == null) return 0;
+                else {
+                    String res = segment.find(restKey.substring(1));
+                    if (res != null) return 1;
+                    else if (segment.trieSlot == null) return 0;
+                    else return getPathLength(segment.trieSlot, restKey.substring(1)) + 1;
+                }
+            }
+            else if (node instanceof LeafNode leafNode) {
+                if (restKey.equals(leafNode.key)) return 1;
+                else return 0;
+            }
+            else {
+                System.err.println("遍历过程中出现节点种类错误！");
+                throw new RuntimeException("节点种类异常");
+            }
+        }
+    }
+
+    public int getPathLength(String key) {
+        return getPathLength(root, key);
+    }
+}

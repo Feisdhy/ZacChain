@@ -1,0 +1,488 @@
+package blockchain.mpt;
+
+import blockchain.global.Node;
+import blockchain.util.Common;
+import blockchain.util.HashUtils;
+import blockchain.util.RocksDBUtils;
+import blockchain.util.SerializeUtils;
+import org.rocksdb.RocksDBException;
+
+import java.math.BigInteger;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+
+public class Trie {
+    public Node root;
+    public HashMap<String, Node> persistentNodes, removalNodes;
+    private static final BigInteger one = new BigInteger("1");
+    public BigInteger branchCount, extensionCount, leafCount, readCount, writeCount;
+
+    public Trie() {
+        root = null;
+        persistentNodes = new HashMap<>();
+        removalNodes = new HashMap<>();
+        branchCount = new BigInteger("0");
+        extensionCount = new BigInteger("0");
+        leafCount = new BigInteger("0");
+        readCount = new BigInteger("0");
+        writeCount = new BigInteger("0");
+    }
+
+    public Trie(String rootHash, String branchCount, String extensionCount, String leafCount) throws RocksDBException {
+        persistentNodes = new HashMap<>();
+        removalNodes = new HashMap<>();
+        this.branchCount = new BigInteger(branchCount);
+        this.extensionCount = new BigInteger(extensionCount);
+        this.leafCount = new BigInteger(leafCount);
+        readCount = new BigInteger("0");
+        writeCount = new BigInteger("0");
+        root = initNode(rootHash);
+    }
+
+    private Node initNode(String hash) throws RocksDBException {
+        readCount = readCount.add(one);
+        Node node = SerializeUtils.deserializeNode(RocksDBUtils.get(Common.hexToBytes(hash)));
+        if (node instanceof BranchNode branchNode) {
+            branchNode.children = new Node[16];
+            branchNode.hash = hash;
+            return branchNode;
+        }
+        else if (node instanceof ExtensionNode extensionNode) {
+            extensionNode.hash = hash;
+            return extensionNode;
+        }
+        else if (node instanceof LeafNode leafNode) {
+            leafNode.hash = hash;
+            return leafNode;
+        }
+        else {
+            System.err.println("遍历过程中出现节点种类错误！");
+            throw new RuntimeException("节点种类异常");
+        }
+    }
+
+    public static String findCommonPrefix(String str1, String str2) {
+        int minLength = Math.min(str1.length(), str2.length());
+        StringBuilder commonPrefix = new StringBuilder();
+        for (int i = 0; i < minLength; i++) {
+            if (str1.charAt(i) != str2.charAt(i)) break;
+            commonPrefix.append(str1.charAt(i));
+        }
+        return commonPrefix.toString();
+    }
+
+    public static int getIndex(char c) {
+        if (Character.isDigit(c)) return c - '0';
+        else if (Character.isLowerCase(c)) return c - 'a' + 10;
+        else return c - 'A' + 10;
+    }
+
+    public String commit() throws RocksDBException {
+        // 将所有需要写入levelDB的数据进行写入
+        for (Map.Entry<String, Node> entry : persistentNodes.entrySet()) {
+            writeCount = writeCount.add(one);
+            RocksDBUtils.put(Common.hexToBytes(entry.getKey()), SerializeUtils.serializeNode(entry.getValue()));
+        }
+        persistentNodes = new HashMap<>();
+        // 将所有需要删除levelDB的数据进行删除
+        for (Map.Entry<String, Node> entry : removalNodes.entrySet()) {
+            writeCount = writeCount.add(one);
+            RocksDBUtils.delete(Common.hexToBytes(entry.getKey()));
+        }
+        removalNodes = new HashMap<>();
+        return root.hash();
+    }
+
+    /**
+     * if (node == null) return new LeafNode(restKey, value);
+     *         else {
+     *             if (node instanceof BranchNode branchNode) {
+     *                 // 如果遍历到扩展节点，首先检查restKey对应的children是否为空
+     *                 // 如果为空则为其分配一个LeafNode
+     *                 // 如果不为空则继续遍历
+     *                 // 但是无论是不是空都需要保证branchNode的children引用正确
+     *                 int idx = getIndex(restKey.charAt(0));
+     *                 branchNode.children[idx] = insert(branchNode.children[idx], restKey.substring(1), value);
+     *                 return branchNode;
+     *             }
+     *             else if (node instanceof ExtensionNode extensionNode) {
+     *                 // 如果遍历到扩展结点，首先检查restKey是否完全覆盖key
+     *                 // 如果全部覆盖则继续遍历
+     *                 // 如果完全没有覆盖则一定会生成一个新的branchNode和一个extensionNode，需要插入的键值对会沿着branchNode继续插入
+     *                 // 如果覆盖了一部分则一定会生成一个新的extensionNode和一个branchNode，需要插入的键值对会沿着branchNode继续插入
+     *                 String prefix = findCommonPrefix(restKey, extensionNode.key);
+     *                 if (prefix.isEmpty()) {
+     *                     BranchNode branchNode = new BranchNode();
+     *                     int idx1 = getIndex(restKey.charAt(0)), idx2 = getIndex(extensionNode.key.charAt(0));
+     *                     branchNode.children[idx1] = insert(branchNode.children[idx1], restKey.substring(1), value);
+     *                     // 这里需要进行特殊判断当前extension是否只有一个字符
+     *                     // 如果只有一个字符则将branchNode指向extensionNode的孩子节点
+     *                     // 如果有多个字符则新生成一个extensionNode指向原本extensionNode的孩子节点
+     *                     if (extensionNode.key.substring(1).isEmpty()) branchNode.children[idx2] = extensionNode.child;
+     *                     else {
+     *                         ExtensionNode extensionNode1 = new ExtensionNode(extensionNode.key.substring(1));
+     *                         extensionNode1.child = extensionNode.child;
+     *                         branchNode.children[idx2] = extensionNode1;
+     *                     }
+     *                     return branchNode;
+     *                 }
+     *                 else {
+     *                     if (restKey.startsWith(extensionNode.key)) {
+     *                         extensionNode.child = insert(extensionNode.child, restKey.substring(extensionNode.key.length()), value);
+     *                         return extensionNode;
+     *                     }
+     *                     else {
+     *                         ExtensionNode extensionNode1 = new ExtensionNode(prefix);
+     *                         BranchNode branchNode = new BranchNode();
+     *                         int idx = prefix.length(), idx1 = getIndex(restKey.charAt(idx)), idx2 = getIndex(extensionNode.key.charAt(idx));
+     *                         branchNode.children[idx1] = insert(branchNode.children[idx1], restKey.substring(idx + 1), value);
+     *                         // 这里需要进行特殊判断即prefix + branchNode的一个字符是否等于原始的extensionNode
+     *                         // 如果是的话那就不需要额外生成一个extensionNode
+     *                         // 如果不是那么就需要额外生成一个extensionNode并将其指向原始extensionNode的孩子节点
+     *                         if (extensionNode.key.substring(idx + 1).isEmpty()) branchNode.children[idx2] = extensionNode.child;
+     *                         else {
+     *                             ExtensionNode extensionNode2 = new ExtensionNode(extensionNode.key.substring(idx + 1));
+     *                             extensionNode2.child = extensionNode.child;
+     *                             branchNode.children[idx2] = extensionNode2;
+     *                         }
+     *                         extensionNode1.child = branchNode;
+     *                         return extensionNode1;
+     *                     }
+     *                 }
+     *             }
+     *             else if (node instanceof LeafNode leafNode) {
+     *                 // 如果遍历到叶子节点，首先检查restKey是否和node的key相同
+     *                 // 如果相同，则更新node的值
+     *                 // 如果不同，则需要计算公共前缀
+     *                 if (restKey.equals(leafNode.key)) {
+     *                     leafNode.value = value;
+     *                     return leafNode;
+     *                 }
+     *                 else {
+     *                     // 比较公共前缀
+     *                     // 如果存在公共前缀，则分配一个ExtensionNode,一个BranchNode，两个LeafNode
+     *                     // 如果不存在公共前缀,一个BranchNode，两个LeafNode
+     *                     String prefix = findCommonPrefix(restKey, leafNode.key);
+     *                     if (prefix.isEmpty()) {
+     *                         BranchNode branchNode = new BranchNode();
+     *                         int idx1 = getIndex(restKey.charAt(0)), idx2 = getIndex(leafNode.key.charAt(0));
+     *                         branchNode.children[idx1] = new LeafNode(restKey.substring(1), value);
+     *                         branchNode.children[idx2] = new LeafNode(leafNode.key.substring(1), leafNode.value);
+     *                         return branchNode;
+     *                     }
+     *                     else {
+     *                         ExtensionNode extensionNode = new ExtensionNode(prefix);
+     *                         BranchNode branchNode = new BranchNode();
+     *                         int idx = prefix.length(), idx1 = getIndex(restKey.charAt(idx)), idx2 = getIndex(leafNode.key.charAt(idx));
+     *                         branchNode.children[idx1] = new LeafNode(restKey.substring(idx + 1), value);
+     *                         branchNode.children[idx2] = new LeafNode(leafNode.key.substring(idx + 1), leafNode.value);
+     *                         extensionNode.child = branchNode;
+     *                         return extensionNode;
+     *                     }
+     *                 }
+     *             }
+     *             else {
+     *                 System.err.println("遍历过程中出现节点种类错误！");
+     *                 throw new RuntimeException("节点种类异常");
+     *             }
+     *         }
+     * */
+    private Node insert(Node node, String restKey, String value) {
+        if (node == null) {
+            leafCount = leafCount.add(one);
+            LeafNode leafNode = new LeafNode(restKey, value);
+            persistentNodes.put(leafNode.hash, leafNode);
+            return leafNode;
+        }
+        else {
+            if (node instanceof BranchNode branchNode) {
+                // 如果遍历到扩展节点，首先检查restKey对应的children是否为空
+                // 如果为空则为其分配一个LeafNode
+                // 如果不为空则继续遍历
+                // 但是无论是不是空都需要保证branchNode的children引用正确
+                // 并且保证branchNode指向孩子节点的childrenHash引用正确
+                int idx = getIndex(restKey.charAt(0));
+                branchNode.children[idx] = insert(branchNode.children[idx], restKey.substring(1), value);
+                branchNode.childrenHash[idx] = branchNode.children[idx].hash();
+                // 此时该branchNode被修改，因此需要重新写入到levelDB中
+                persistentNodes.put(branchNode.hash, branchNode);
+                return branchNode;
+            }
+            else if (node instanceof ExtensionNode extensionNode) {
+                // 如果遍历到扩展结点，首先检查restKey是否完全覆盖key
+                // 如果全部覆盖则继续遍历
+                // 如果完全没有覆盖则一定会生成一个新的branchNode和一个extensionNode，需要插入的键值对会沿着branchNode继续插入
+                // 如果覆盖了一部分则一定会生成一个新的extensionNode和一个branchNode，需要插入的键值对会沿着branchNode继续插入
+                String prefix = findCommonPrefix(restKey, extensionNode.key);
+                if (prefix.isEmpty()) {
+                    BranchNode branchNode = new BranchNode();
+                    int idx1 = getIndex(restKey.charAt(0)), idx2 = getIndex(extensionNode.key.charAt(0));
+                    branchNode.children[idx1] = insert(branchNode.children[idx1], restKey.substring(1), value);
+                    branchNode.childrenHash[idx1] = branchNode.children[idx1].hash();
+                    // 这里需要进行特殊判断当前extension是否只有一个字符
+                    // 如果只有一个字符则将branchNode指向extensionNode的孩子节点
+                    // 如果有多个字符则新生成一个extensionNode指向原本extensionNode的孩子节点
+                    if (extensionNode.key.substring(1).isEmpty()) {
+                        branchNode.children[idx2] = extensionNode.child;
+                        branchNode.childrenHash[idx2] = branchNode.children[idx2].hash();
+                        extensionCount = extensionCount.subtract(one);
+                        // 这种情况下只会生成一个新的branchNode
+                    }
+                    else {
+                        ExtensionNode extensionNode1 = new ExtensionNode(extensionNode.key.substring(1));
+                        extensionNode1.child = extensionNode.child;
+                        extensionNode1.childHash = extensionNode.childHash;
+                        branchNode.children[idx2] = extensionNode1;
+                        branchNode.childrenHash[idx2] = extensionNode1.hash;
+                        persistentNodes.put(extensionNode1.hash, extensionNode1);
+                        // 这种情况下会生成一个新的branchNode与一个新的extensionNode
+                    }
+                    branchCount = branchCount.add(one);
+                    persistentNodes.remove(extensionNode.hash);
+                    persistentNodes.put(branchNode.hash, branchNode);
+                    // 这种情况需要将extensionNode删除，删除之前需要存储的extensionNode
+                    removalNodes.put(extensionNode.hash, extensionNode);
+                    return branchNode;
+                }
+                else {
+                    if (restKey.startsWith(extensionNode.key)) {
+                        extensionNode.child = insert(extensionNode.child, restKey.substring(extensionNode.key.length()), value);
+                        extensionNode.childHash = extensionNode.child.hash();
+                        // 此时该extensionNode被修改，因此需要重新写入到levelDB中
+                        persistentNodes.put(extensionNode.hash, extensionNode);
+                        return extensionNode;
+                    }
+                    else {
+                        ExtensionNode extensionNode1 = new ExtensionNode(prefix);
+                        BranchNode branchNode = new BranchNode();
+                        int idx = prefix.length(), idx1 = getIndex(restKey.charAt(idx)), idx2 = getIndex(extensionNode.key.charAt(idx));
+                        branchNode.children[idx1] = insert(branchNode.children[idx1], restKey.substring(idx + 1), value);
+                        branchNode.childrenHash[idx1] = branchNode.children[idx1].hash();
+                        // 这里需要进行特殊判断即prefix + branchNode的一个字符是否等于原始的extensionNode
+                        // 如果是的话那就不需要额外生成一个extensionNode
+                        // 如果不是那么就需要额外生成一个extensionNode并将其指向原始extensionNode的孩子节点
+                        if (extensionNode.key.substring(idx + 1).isEmpty()) {
+                            branchNode.children[idx2] = extensionNode.child;
+                            branchNode.childrenHash[idx2] = branchNode.children[idx2].hash();
+                            // 这种情况会生成一个新的extensionNode与一个新的branchNode
+                        }
+                        else {
+                            ExtensionNode extensionNode2 = new ExtensionNode(extensionNode.key.substring(idx + 1));
+                            extensionNode2.child = extensionNode.child;
+                            extensionNode2.childHash = extensionNode.childHash;
+                            branchNode.children[idx2] = extensionNode2;
+                            branchNode.childrenHash[idx2] = branchNode.children[idx2].hash();
+                            extensionCount = extensionCount.add(one);
+                            persistentNodes.put(extensionNode2.hash, extensionNode2);
+                            // 这种情况会生成两个个新的extensionNode与一个新的branchNode
+                        }
+                        extensionNode1.child = branchNode;
+                        extensionNode1.childHash = branchNode.hash;
+                        branchCount = branchCount.add(one);
+                        persistentNodes.remove(extensionNode.hash);
+                        persistentNodes.put(extensionNode1.hash, extensionNode1);
+                        persistentNodes.put(branchNode.hash, branchNode);
+                        // 这种情况需要将extensionNode删除，删除之前需要存储的extensionNode
+                        removalNodes.put(extensionNode.hash, extensionNode);
+                        return extensionNode1;
+                    }
+                }
+            }
+            else if (node instanceof LeafNode leafNode) {
+                // 如果遍历到叶子节点，首先检查restKey是否和node的key相同
+                // 如果相同，则更新node的值
+                // 如果不同，则需要计算公共前缀
+                if (restKey.equals(leafNode.key)) {
+                    leafNode.value = value;
+                    persistentNodes.put(leafNode.hash, leafNode);
+                    return leafNode;
+                }
+                else {
+                    // 比较公共前缀
+                    // 如果存在公共前缀，则分配一个ExtensionNode,一个BranchNode，两个LeafNode
+                    // 如果不存在公共前缀,一个BranchNode，两个LeafNode
+                    String prefix = findCommonPrefix(restKey, leafNode.key);
+                    if (prefix.isEmpty()) {
+                        BranchNode branchNode = new BranchNode();
+                        int idx1 = getIndex(restKey.charAt(0)), idx2 = getIndex(leafNode.key.charAt(0));
+                        LeafNode leafNode1 = new LeafNode(restKey.substring(1), value),
+                                 leafNode2 = new LeafNode(leafNode.key.substring(1), leafNode.value);
+                        branchNode.children[idx1] = leafNode1;
+                        branchNode.childrenHash[idx1] = branchNode.children[idx1].hash();
+                        branchNode.children[idx2] = leafNode2;
+                        branchNode.childrenHash[idx2] = branchNode.children[idx2].hash();
+                        branchCount = branchCount.add(one);
+                        leafCount = leafCount.add(one);
+                        persistentNodes.remove(leafNode.hash);
+                        persistentNodes.put(branchNode.hash, branchNode);
+                        persistentNodes.put(leafNode1.hash, leafNode1);
+                        persistentNodes.put(leafNode2.hash, leafNode2);
+                        // leafNode -> branchNode + 2 * leafNode
+                        // 这种情况下会删除之前需要存储的leafNode
+                        removalNodes.put(leafNode.hash, leafNode);
+                        return branchNode;
+                    }
+                    else {
+                        ExtensionNode extensionNode = new ExtensionNode(prefix);
+                        BranchNode branchNode = new BranchNode();
+                        int idx = prefix.length(), idx1 = getIndex(restKey.charAt(idx)), idx2 = getIndex(leafNode.key.charAt(idx));
+                        LeafNode leafNode1 = new LeafNode(restKey.substring(idx + 1), value),
+                                 leafNode2 = new LeafNode(leafNode.key.substring(idx + 1), leafNode.value);
+                        branchNode.children[idx1] = leafNode1;
+                        branchNode.childrenHash[idx1] = leafNode1.hash;
+                        branchNode.children[idx2] = leafNode2;
+                        branchNode.childrenHash[idx2] = leafNode2.hash;
+                        extensionNode.child = branchNode;
+                        extensionNode.childHash = branchNode.hash;
+                        branchCount = branchCount.add(one);
+                        extensionCount = extensionCount.add(one);
+                        leafCount = leafCount.add(one);
+                        persistentNodes.remove(leafNode.hash);
+                        persistentNodes.put(extensionNode.hash, extensionNode);
+                        persistentNodes.put(branchNode.hash, branchNode);
+                        persistentNodes.put(leafNode1.hash, leafNode1);
+                        persistentNodes.put(leafNode2.hash, leafNode2);
+                        // leafNode -> extensionNode + branchNode + 2 * leafNode
+                        // 这种情况下会删除之前需要存储的leafNode
+                        removalNodes.put(leafNode.hash, leafNode);
+                        return extensionNode;
+                    }
+                }
+            }
+            else {
+                System.err.println("遍历过程中出现节点种类错误！");
+                throw new RuntimeException("节点种类异常");
+            }
+        }
+    }
+
+    public String insert(String key, String value) {
+        root = insert(root, key, value);
+        return root.hash();
+    }
+
+    private int getPathLength(Node node, String restKey) {
+        if (node == null) return 0;
+        else {
+            if (node instanceof BranchNode branchNode) {
+                int idx = getIndex(restKey.charAt(0));
+                return getPathLength(branchNode.children[idx], restKey.substring(1)) + 1;
+            }
+            else if (node instanceof ExtensionNode extensionNode) {
+                if (restKey.startsWith(extensionNode.key)) return getPathLength(extensionNode.child, restKey.substring(extensionNode.key.length())) + 1;
+                else return 0;
+            }
+            else if (node instanceof LeafNode leafNode) {
+                if (restKey.equals(leafNode.key)) return 1;
+                else return 0;
+            }
+            else {
+                System.err.println("遍历过程中出现节点种类错误！");
+                throw new RuntimeException("节点种类异常");
+            }
+        }
+    }
+
+    public int getPathLength(String key) {
+        return getPathLength(root, key);
+    }
+
+    private int getProofSize(Node node, String restKey) {
+        if (node == null) return 0;
+        else {
+            if (node instanceof BranchNode branchNode) {
+                int cnt = 0, idx = getIndex(restKey.charAt(0));
+                for (int i = 0; i < 16; i ++ )
+                    if (i != idx && branchNode.childrenHash[i] != null) cnt ++ ;
+                return getProofSize(branchNode.children[idx], restKey.substring(1)) + cnt;
+            }
+            else if (node instanceof ExtensionNode extensionNode) return getProofSize(extensionNode.child, restKey.substring(extensionNode.key.length()));
+            else if (node instanceof LeafNode leafNode) return 0;
+            else {
+                System.err.println("遍历过程中出现节点种类错误！");
+                throw new RuntimeException("节点种类异常");
+            }
+        }
+    }
+
+    public int getProofSize(String key) {
+        return getProofSize(root, key);
+    }
+
+    private String get(Node node, String restKey) throws RocksDBException {
+        if (node == null) return null;
+        else {
+            if (node instanceof BranchNode branchNode) {
+                // 如果当前遍历的节点是branchNode，那么会检查对应children是否存储到内存中
+                // 如果存储到了内存，则直接继续遍历
+                // 如果没有存储到内存，那么会进行一次IO的read操作
+                int idx = getIndex(restKey.charAt(0));
+                if (branchNode.children[idx] == null && branchNode.childrenHash[idx] != null)
+                    branchNode.children[idx] = initNode(branchNode.childrenHash[idx]);
+                return get(branchNode.children[idx], restKey.substring(1));
+            }
+            else if (node instanceof ExtensionNode extensionNode) {
+                // 如果当前遍历的节点是extensionNode，那么会检查对应child是否存储到内存中
+                // 如果存储到了内存，则直接继续遍历
+                // 如果没有存储到内存，那么会进行一次IO的read操作
+                if (restKey.startsWith(extensionNode.key)) {
+                    if (extensionNode.child == null && extensionNode.childHash != null)
+                        extensionNode.child = initNode(extensionNode.childHash);
+                    return get(extensionNode.child, restKey.substring(extensionNode.key.length()));
+                }
+                else return null;
+            }
+            else if (node instanceof LeafNode leafNode) {
+                if (restKey.equals(leafNode.key)) return leafNode.value;
+                else return null;
+            }
+            else {
+                System.err.println("遍历过程中出现节点种类错误！");
+                throw new RuntimeException("节点种类异常");
+            }
+        }
+    }
+
+    public String get(String key) throws RocksDBException {
+        return get(root, key);
+    }
+
+    private void update(Node node, String restKey, String value) {
+        if (node instanceof BranchNode branchNode) {
+            int idx = getIndex(restKey.charAt(0));
+            update(branchNode.children[idx], restKey.substring(1), value);
+            branchNode.childrenHash[idx] = branchNode.children[idx].hash();
+            String hash = branchNode.hash;
+            branchNode.hash = Common.bytesToHex(HashUtils.generateHash());
+            persistentNodes.remove(hash);
+            persistentNodes.put(branchNode.hash, branchNode);
+        }
+        else if (node instanceof ExtensionNode extensionNode) {
+            if (restKey.startsWith(extensionNode.key)) {
+                update(extensionNode.child, restKey.substring(extensionNode.key.length()), value);
+                extensionNode.childHash = extensionNode.child.hash();
+                String hash = extensionNode.hash;
+                extensionNode.hash = Common.bytesToHex(HashUtils.generateHash());
+                persistentNodes.remove(hash);
+                persistentNodes.put(extensionNode.hash, extensionNode);
+            }
+        }
+        else if (node instanceof LeafNode leafNode) {
+            leafNode.value = value;
+            String hash = leafNode.hash;
+            leafNode.hash = Common.bytesToHex(HashUtils.generateHash());
+            persistentNodes.remove(hash);
+            persistentNodes.put(leafNode.hash, leafNode);
+        }
+        else {
+            System.err.println("遍历过程中出现节点种类错误！");
+            throw new RuntimeException("节点种类异常");
+        }
+    }
+
+    public String update(String key, String value) {
+        update(root, key, value);
+        return root.hash();
+    }
+}

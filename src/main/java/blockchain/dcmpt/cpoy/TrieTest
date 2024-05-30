@@ -1,0 +1,194 @@
+package blockchain.dcmpt.cpoy;
+
+import blockchain.dcmpt.OptTrie;
+import blockchain.mpt.Trie;
+import blockchain.util.AddressUtils;
+import blockchain.util.Common;
+import org.rocksdb.RocksDBException;
+
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
+public class TrieTest {
+    public static void main(String[] args) {
+
+    }
+
+    private static final int PRINT_THRESHOLD = 1_000_000;
+    private static final int THRESHOLD = 1_000_000;
+
+    private static final HashMap<Integer, Boolean> EXPERIMENT_MAP = new HashMap<>() {{
+        put(10_000, true);
+        put(100_000, true);
+        put(1_000_000, true);
+        put(10_000_000, true);
+        put(100_000_000, true);
+        put(1_000_000_000, true);
+    }};
+
+    public static void test1() throws RocksDBException {
+        Trie trie = new Trie();
+        List<String> keySet = new ArrayList<>();
+        HashMap<String, Boolean> map = new HashMap<>();
+        for (int i = 0; i < THRESHOLD; i ++ ) {
+            String key = Common.bytesToHex(AddressUtils.generateAddress());
+            if (map.getOrDefault(key, false)) i--;
+            else {
+                keySet.add(key);
+                map.put(key, true);
+                trie.insert(key, "");
+            }
+            if (EXPERIMENT_MAP.getOrDefault(i + 1, false)) {
+                int max = 0, min = Integer.MAX_VALUE;
+                BigInteger total = new BigInteger("0");
+                for (int j = 0; j < i + 1; j ++ ) {
+                    int current = trie.getPathLength(keySet.get(j));
+                    max = Math.max(max, current);
+                    min = Math.min(min, current);
+                    total = total.add(new BigInteger(String.valueOf(current)));
+                }
+                System.out.println("最大遍历路径长度：" + max);
+                System.out.println("最小遍历路径长度：" + min);
+                System.out.println("全部遍历路径长度：" + total);
+                System.out.println("BranchNode的个数：" + trie.branchCount.toString());
+                System.out.println("ExtensionNode的个数：" + trie.extensionCount.toString());
+                System.out.println("LeafNode的个数：" + trie.leafCount.toString());
+                System.out.println();
+            }
+
+            if ((i + 1) % PRINT_THRESHOLD == 0) System.out.println("已完成前" + (i + 1) + "状态的插入！");
+        }
+    }
+
+    /**
+     * 17f5e42
+     * 1064b34
+     * 1a7a83f
+     * 1acada2
+     * e57af68
+     * e9471e7
+     * e91f8b8
+     * ef0b143
+     * ef19306
+     * ef21c71
+     */
+    public static void test2() {
+        OptTrie trie = new blockchain.dcmpt.OptTrie(16);
+        List<String> keySet = new ArrayList<>();
+        HashMap<String, Boolean> map = new HashMap<>();
+        for (int i = 0; i < THRESHOLD; i ++ ) {
+            String key = Common.bytesToHex(AddressUtils.generateAddress());
+            if (map.getOrDefault(key, false)) i--;
+            else {
+                keySet.add(key);
+                map.put(key, true);
+                trie.insert(key, "");
+            }
+            if (EXPERIMENT_MAP.getOrDefault(i + 1, false)) {
+                int max = 0, min = Integer.MAX_VALUE;
+                BigInteger total = new BigInteger("0");
+                for (int j = 0; j < i + 1; j ++ ) {
+                    int current = trie.getPathLength(keySet.get(j));
+                    max = Math.max(max, current);
+                    min = Math.min(min, current);
+                    total = total.add(new BigInteger(String.valueOf(current)));
+                }
+                System.out.println("最大遍历路径长度：" + max);
+                System.out.println("最小遍历路径长度：" + min);
+                System.out.println("全部遍历路径长度：" + total);
+                System.out.println("CompactNode的个数：" + trie.compactCount.toString());
+                System.out.println("LeafNode的个数：" + trie.leafCount.toString());
+                System.out.println("StateSlot的个数：" + trie.slotCount.toString());
+                System.out.println();
+            }
+
+            if ((i + 1) % PRINT_THRESHOLD == 0) System.out.println("已完成前" + (i + 1) + "状态的插入！");
+        }
+    }
+
+    public static void test3() throws RocksDBException {
+        long time = System.currentTimeMillis();
+        Trie trie1 = new Trie();
+        OptTrie trie2 = new OptTrie(16);
+        List<String> keySet = new ArrayList<>();
+        HashMap<String, Boolean> map = new HashMap<>();
+        for (int i = 0; i < THRESHOLD; i ++ ) {
+            String key = Common.bytesToHex(AddressUtils.generateAddress());
+            if (map.getOrDefault(key, false)) i--;
+            else {
+                keySet.add(key);
+                map.put(key, true);
+            }
+            if ((i + 1) % PRINT_THRESHOLD == 0) {
+                System.out.println(((System.currentTimeMillis() - time) / 1000)+ "s 已完成前" + (i + 1) + "状态的生成！");
+                time = System.currentTimeMillis();
+            }
+        }
+        map = null;
+        System.gc();
+
+        time = System.currentTimeMillis();
+        for (int i = 0; i < THRESHOLD; i ++ ) {
+            trie1.insert(keySet.get(i), "");
+
+            if ((i + 1) % PRINT_THRESHOLD == 0) {
+                System.out.println(((System.currentTimeMillis() - time) / 1000)+ "s 已完成前" + (i + 1) + "状态的插入！");
+                System.gc();
+                time = System.currentTimeMillis();
+            }
+
+            if (EXPERIMENT_MAP.getOrDefault(i + 1, false)) {
+                int max = 0, min = Integer.MAX_VALUE;
+                BigInteger total = new BigInteger("0");
+                for (int j = 0; j < i + 1; j ++ ) {
+                    int current = trie1.getPathLength(keySet.get(j));
+                    max = Math.max(max, current);
+                    min = Math.min(min, current);
+                    total = total.add(new BigInteger(String.valueOf(current)));
+                }
+                System.out.println("最大遍历路径长度：" + max);
+                System.out.println("最小遍历路径长度：" + min);
+                System.out.println("全部遍历路径长度：" + total);
+                System.out.println("BranchNode的个数：" + trie1.branchCount.toString());
+                System.out.println("ExtensionNode的个数：" + trie1.extensionCount.toString());
+                System.out.println("LeafNode的个数：" + trie1.leafCount.toString());
+                System.out.println();
+            }
+        }
+
+        trie1 = null;
+        System.gc();
+        System.out.println();
+
+        time = System.currentTimeMillis();
+        for (int i = 0; i < THRESHOLD; i ++ ) {
+            trie2.insert(keySet.get(i), "");
+
+            if ((i + 1) % PRINT_THRESHOLD == 0) {
+                System.out.println(((System.currentTimeMillis() - time) / 1000)+ "s 已完成前" + (i + 1) + "状态的插入！");
+                System.gc();
+                time = System.currentTimeMillis();
+            }
+
+            if (EXPERIMENT_MAP.getOrDefault(i + 1, false)) {
+                int max = 0, min = Integer.MAX_VALUE;
+                BigInteger total = new BigInteger("0");
+                for (int j = 0; j < i + 1; j++) {
+                    int current = trie2.getPathLength(keySet.get(j));
+                    max = Math.max(max, current);
+                    min = Math.min(min, current);
+                    total = total.add(new BigInteger(String.valueOf(current)));
+                }
+                System.out.println("最大遍历路径长度：" + max);
+                System.out.println("最小遍历路径长度：" + min);
+                System.out.println("全部遍历路径长度：" + total);
+                System.out.println("CompactNode的个数：" + trie2.compactCount.toString());
+                System.out.println("LeafNode的个数：" + trie2.leafCount.toString());
+                System.out.println("StateSlot的个数：" + trie2.slotCount.toString());
+                System.out.println();
+            }
+        }
+    }
+}
